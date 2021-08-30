@@ -10,7 +10,7 @@ import jwtutils
 pdfpath = str(sys.argv[1])
 
 # convert government-issued pdf to png for cv2 to detect the qrcode
-pages = convert_from_path(pdfpath, 500, poppler_path=r".\poppler-21.08.0\Library\bin")
+pages = convert_from_path(pdfpath, 500)
 pages[0].save("output-files\pngqrcode.png", "PNG")
 
 # read QRCODE from the converted pdf
