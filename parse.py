@@ -1,4 +1,5 @@
 from pdf2image import convert_from_path
+from pathlib import Path
 import cv2
 import sys
 import jwt
@@ -11,10 +12,10 @@ pdfpath = str(sys.argv[1])
 
 # convert government-issued pdf to png for cv2 to detect the qrcode
 pages = convert_from_path(pdfpath, 500)
-pages[0].save("output-files\pngqrcode.png", "PNG")
+pages[0].save(str(Path("output-files/pngqrcode.png")), "PNG")
 
 # read QRCODE from the converted pdf
-img = cv2.imread("output-files\pngqrcode.png")
+img = cv2.imread(str(Path("output-files/pngqrcode.png")))
 
 # initialize the cv2 QRCODE detector
 detector = cv2.QRCodeDetector()
