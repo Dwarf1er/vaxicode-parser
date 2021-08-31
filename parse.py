@@ -30,15 +30,14 @@ decoded_header = str(jwt.get_unverified_header(encoded_jwt))
 
 # sanitizing the JSON data to pretty print it
 decoded_header = decoded_header.replace("\'", "\"")
-test = json.loads(decoded_header)
-test2 = json.dumps(test, indent=4)
-print("Header:\n" + test2)
+decoded_header_formatted = json.dumps(json.loads(decoded_header), indent=4)
+print("Header:\n" + decoded_header_formatted)
 
 # decoding the JWT body
 decompressed_body = jwtutils.base64_decode(encoded_jwt.split(".")[1])
 decoded_body = str(zlib.decompress(decompressed_body, wbits=-15))[2:-1]
 
 # sanitizing the JSON data to pretty print it
-decoded_body = decoded_body.replace("\'", "\"").replace("\\xc3\\x89", "E")
-decoded_body_formatted = json.dumps(json.loads(decoded_body), indent=4)
-print("Body:\n" + decoded_body_formatted)
+decoded_body = decoded_body.replace("\'", "\"").encode('utf-8').decode('unicode_escape').encode('latin-1')
+decoded_body_formatted = json.dumps(json.loads(decoded_body), ensure_ascii=False, indent=4)
+print("Body:\n" + str(decoded_body_formatted))
