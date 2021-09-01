@@ -32,14 +32,39 @@ $ pip install -r requirements.txt
 
 ## How To Use This Project
 
-The script expects to receive the government-issued PDF filepath as a command-line argument, the script will then convert the PDF to a PNG to allow OpenCV to read and decode the QR code. Since the PDF has to be converted to a PNG before the QR code can be deconstructed and decrypted the process can take a while before completing.
+This script can receive 3 different input formats:
+  - The government-issued PDF file containing your QR code
+  - A PNG file containing your QR code
+  - The SHC contained in your QR code
+
+#### To Use This Project With A PDF
 
 ```bash
 # Go into the repository
 $ cd vaxicode-parser
 
 # Execute parse.py and pass the filepath to your government-issued PDF file containing your QR code
-$ python parse.py path/to/your/PDF/QR/code
+$ python parse.py -p path/to/your/PDF/QR/code
+```
+
+#### To Use This Project With A PNG
+
+```bash
+# Go into the repository
+$ cd vaxicode-parser
+
+# Execute parse.py and pass the filepath to your government-issued PDF file containing your QR code
+$ python parse.py -i path/to/your/PNG/QR/code
+```
+
+#### To Use This Project With A SHC
+
+```bash
+# Go into the repository
+$ cd vaxicode-parser
+
+# Execute parse.py and pass the filepath to your government-issued PDF file containing your QR code
+$ python parse.py -s 'your SHC here'
 ```
 
 ### Prerequisites
