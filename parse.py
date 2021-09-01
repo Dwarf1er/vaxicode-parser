@@ -1,4 +1,4 @@
-from vaxicode_utils import *
+from vaxicode_utils import arguments, pdf2png, qrcodereader, shcutils, jwtutils
 
 def main():
     # retrieving command line arguments
