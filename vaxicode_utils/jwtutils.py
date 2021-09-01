@@ -31,7 +31,7 @@ def decode_and_print_body(encoded_JWT:str):
     '''utility method to decode and print the body of the JWT'''
     
     # decoding the JWT header
-    decoded_body = str(zlib.decompress(base64_decode(encoded_JWT.split(".")[1]), wbits=-15))[2:-1]
+    decoded_body = zlib.decompress(base64_decode(encoded_JWT.split(".")[1]), wbits=-15).decode("utf-8")
 
     # sanitizing the JSON data to pretty print it
     decoded_body = sanitize_JSON(decoded_body)
