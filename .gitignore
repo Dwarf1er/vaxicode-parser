@@ -159,7 +159,7 @@ cython_debug/
 .ionide
 
 # Input and Output contents should stay local
-input-files/*
-output-files/*
+input_files/*
+output_files/*
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python
