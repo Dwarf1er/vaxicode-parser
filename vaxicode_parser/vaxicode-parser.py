@@ -6,62 +6,113 @@ import base64
 import zlib
 import json
 from pdf2image import convert_from_path
+from typing import List
 
 parser = argparse.ArgumentParser(
-    description="Process PDFs, images, or SHC strings."
+    description="Decode Smart Health Card information from QR codes in PDFs, images or SHC strings."
 )
 parser.add_argument("--pdf", help="Path to the PDF file")
 parser.add_argument("--image", help="Path to the image file")
 parser.add_argument("--shc", help="SHC string")
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command line arguments.
+
+    Returns:
+        argparse.Namespace: Parsed arguments.
+    """
     return parser.parse_args()
 
 
-def pdf_to_image(pdf_path):
+def pdf_to_image(pdf_path: str) -> numpy.ndarray:
+    """
+    Convert the first page of a PDF to a numpy array image.
+
+    Args:
+        pdf_path (str): Path to the PDF file.
+
+    Returns:
+        numpy.ndarray: Numpy array representing the image.
+    """
     pages = convert_from_path(pdf_path, 500)
-    image_data = numpy.array(pages[0])
-    return image_data
+    return numpy.array(pages[0])
 
 
-def read_qr_code(image_data):
-    img = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
-    detect = cv2.QRCodeDetector()
-    value, points, straight_qrcode = detect.detectAndDecode(img)
+def read_qr_code(image_data: numpy.ndarray) -> str:
+    """
+    Read the QR code from an image and decode it.
+
+    Args:
+        image_data (numpy.ndarray): Numpy array representing the image.
+
+    Returns:
+        str: Decoded information from the QR code.
+    """
+    image: numpy.ndarray = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
+    detect: cv2.QRCodeDetector = cv2.QRCodeDetector()
+    value, _, _ = detect.detectAndDecode(image)
     return value
 
 
-def read_qr_code_from_file(image_path):
-    img = cv2.imread(image_path)
-    detect = cv2.QRCodeDetector()
-    value, points, straight_qrcode = detect.detectAndDecode(img)
+def read_qr_code_from_file(image_path: str) -> str:
+    """
+    Read the QR code from an image file and decode it.
+
+    Args:
+        image_path (str): Path to the image file.
+
+    Returns:
+        str: Decoded information from the QR code.
+    """
+    image: numpy.ndarray = cv2.imread(image_path)
+    detect: cv2.QRCodeDetector = cv2.QRCodeDetector()
+    value, _, _ = detect.detectAndDecode(image)
     return value
 
 
-def shc_to_jwt(shc_string):
-    integer_pairs = [(shc_string[i:i+2]) for i in range(5, len(shc_string), 2)]
-    base10_pairs = [int(i, base=10) for i in integer_pairs]
-    ascii_values_offset = [chr(i + 45) for i in base10_pairs]
-    jwt = ""
+def shc_to_jwt(shc_string: str) -> str:
+    """
+    Convert a Smart Health Card (SHC) string to a JSON Web Token (JWT).
+
+    Args:
+        shc_string (str): SHC string containing encoded health information.
+
+    Returns:
+        str: JWT string containing decoded health information.
+    """
+    integer_pairs: List[str] = [(shc_string[i:i+2]) for i in range(5, len(shc_string), 2)]
+    base10_pairs: List[int] = [int(i, base=10) for i in integer_pairs]
+    ascii_values_offset: List[str] = [chr(i + 45) for i in base10_pairs]
+    jwt: str = ""
     for i in ascii_values_offset:
         jwt += i
     jwt = re.sub("/[^0-9]/", "", jwt)
     return jwt
 
 
-def decode_jwt(jwt):
+def decode_jwt(jwt: str) -> None:
+    """
+    Decode a JSON Web Token (JWT) and print the decoded header and payload.
+
+    Args:
+        jwt (str): JWT string containing encoded health information.
+
+    Returns:
+        None: This function does not return any value.
+    """
     header, payload, _ = jwt.split(".")
 
     decoded_header = base64.urlsafe_b64decode(header + "==").decode("utf-8")
 
-    payload = payload.encode("utf-8")
-    missing_padding = len(payload) % 4
+    payload_bytes = payload.encode("utf-8")
+    missing_padding = len(payload_bytes) % 4
     if missing_padding:
-        payload += b"=" * (4 - missing_padding)
+        payload_bytes += b"=" * (4 - missing_padding)
 
     decoded_payload = zlib.decompress(
-        base64.urlsafe_b64decode(payload),
+        base64.urlsafe_b64decode(payload_bytes),
         wbits=-15
     ).decode("utf-8")
 
@@ -72,23 +123,27 @@ def decode_jwt(jwt):
     print(json.dumps(decoded_payload, indent=4))
 
 
-def main():
+def main() -> None:
+    """
+    Main function to parse command line arguments and decode SHC information.
+    """
     args = parse_args()
 
     if args.pdf:
         print(f"Processing PDF: {args.pdf}")
-        image_data = pdf_to_image(args.pdf)
-        shc = read_qr_code(cv2.imencode(".jpg", image_data)[1])
+        image_data: numpy.ndarray = pdf_to_image(args.pdf)
+        shc: str = read_qr_code(cv2.imencode(".jpg", image_data)[1])
     elif args.image:
         print(f"Processing image: {args.image}")
-        shc = read_qr_code_from_file(args.image)
+        shc: str = read_qr_code_from_file(args.image)
     elif args.shc:
         print(f"Processing SHC string: {args.shc}")
-        shc = args.shc
+        shc: str = args.shc
     else:
         parser.print_help()
+        return
 
-    jwt = shc_to_jwt(shc)
+    jwt: str = shc_to_jwt(shc)
     decode_jwt(jwt)
 
 
