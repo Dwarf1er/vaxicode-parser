@@ -1,76 +1,82 @@
-# Vaxicode Parser
+# VaxiCode Parser
 
-Vaxicode Parser aims at taking the Québec-issued PDF of your vaccination QR code and extracting the information that is contained in it.
+The VaxiCode Parser is a command-line tool for decoding Smart Health Card (SHC) information from QR codes embedded in PDFs, images, or provided as a string.
 
-## Getting Started
+## Project Description
 
-To clone and run this application, you'll need [Git](https://git-scm.com) and [Python](https://www.python.org/downloads/) installed on your computer. From your command line:
+The Smart Health Card (SHC) is a standard format for securely storing and sharing COVID-19 vaccination and testing information. This tool helps decode the encoded health information contained within SHC QR codes, allowing users to view the decoded data in a human-readable format.
 
-```bash
-# Clone this repository
-$ git clone https://github.com/Dwarf1er/vaxicode-parser.git
+## Prerequisites
 
-# Go into the repository
-$ cd vaxicode-parser
+Before installing and using the VaxiCode Parser, ensure you have the following prerequisites:
 
-# Install virtualenv
-$ sudo pip install virtualenv
+- **Python**: Ensure you have Python (>=3.6) installed on your system.
+- **Poppler**: For decoding PDF files, you need to have Poppler installed. Instructions for installing Poppler on different operating systems are provided below.
+- **Poetry**: Poetry is a dependency manager for Python projects. You'll need Poetry to install and manage the dependencies for this project. Follow the installation instructions below.
 
-# Create a virtual environment
-$ python -m venv .venv
+## Installing Poppler
 
-# Activate the virtual environment
-  #Windows:
-$ .venv\Scripts\Activate.bat
-
-  #MacOS and Linux:
-$ source .venv/bin/activate
-
-# Install the dependencies
-$ pip install -r requirements.txt
-```
-
-## How To Use This Project
-
-This script can receive 3 different input formats:
-  - The government-issued PDF file containing your QR code
-  - A PNG file containing your QR code
-  - The SHC contained in your QR code
-
-#### To Use This Project With A PDF
+### Linux (Ubuntu/Debian)
 
 ```bash
-# Go into the repository
-$ cd vaxicode-parser
-
-# Execute parse.py and pass the filepath to your government-issued PDF file containing your QR code
-$ python parse.py -p path/to/your/PDF/QR/code
+sudo apt update && sudo apt upgrade
+sudo apt install poppler-utils
 ```
-
-#### To Use This Project With A PNG
+### MacOS
 
 ```bash
-# Go into the repository
-$ cd vaxicode-parser
-
-# Execute parse.py and pass the filepath to your government-issued PDF file containing your QR code
-$ python parse.py -i path/to/your/PNG/QR/code
+brew install poppler
 ```
 
-#### To Use This Project With A SHC
+### Windows
+1. Download the latest version of Poppler from [oschwartz10612/poppler-windows](https://github.com/oschwartz10612/poppler-windows/releases)
+2. Extract the latest release .zip to C:\Program Files
+3. Add the absolute path to the Poppler bin directory to your system PATH
+
+## Installing Poetry
+
+To install Poetry, run the following command:
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+For detailed installation instructions, refer to the [Poetry documentation](https://python-poetry.org/docs/#installing-with-the-official-installer).
+
+## Installation
+
+To install the VaxiCode Parser and its dependencies, follow these steps:
+
+1. Clone the repository:
+```bash
+git clone https://github.com/Dwarf1er/vaxicode-parser.git
+```
+
+2. Navigate to the project directory:
+```bash
+cd path/to/vaxicode-parser
+```
+
+3. Install dependencies using Poetry:
+```bash
+poetry install
+```
+
+## Usage
+
+After installing the VaxiCode Parser, you can use it to decode SHC information from PDFs, images, or SHC strings using the following command-line interface:
+
+1. Enter the poetry virtual environment:
 
 ```bash
-# Go into the repository
-$ cd vaxicode-parser
-
-# Execute parse.py and pass the filepath to your government-issued PDF file containing your QR code
-$ python parse.py -s 'your SHC here'
+poetry shell
 ```
-
-### Prerequisites
- 
-- [Git](https://git-scm.com)
-- [Python](https://www.python.org/downloads/)
+2. Use the command line interface:
+```bash
+python vaxicode-parser.py --pdf <path_to_pdf_file>
+python vaxicode-parser.py --image <path_to_image_file>
+python vaxicode-parser.py --shc <shc_string>
+```
+Replace <path_to_pdf_file>, <path_to_image_file>, and <shc_string> with the appropriate values.
 
 ## Authors
 

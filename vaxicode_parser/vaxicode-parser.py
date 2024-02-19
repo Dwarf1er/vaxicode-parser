@@ -10,7 +10,8 @@ from pdf2image import convert_from_path
 from typing import List
 
 parser = argparse.ArgumentParser(
-    description="Decode Smart Health Card information from QR codes in PDFs, images or SHC strings."
+    description=("Decode Smart Health Card information from QR codes "
+                 "in PDFs, images or SHC strings.")
 )
 parser.add_argument("--pdf", help="Path to the PDF file")
 parser.add_argument("--image", help="Path to the image file")
@@ -83,7 +84,9 @@ def shc_to_jwt(shc_string: str) -> str:
     Returns:
         str: JWT string containing decoded health information.
     """
-    integer_pairs: List[str] = [(shc_string[i:i+2]) for i in range(5, len(shc_string), 2)]
+    integer_pairs: List[str] = [
+        (shc_string[i:i+2]) for i in range(5, len(shc_string), 2)
+    ]
     base10_pairs: List[int] = [int(i, base=10) for i in integer_pairs]
     ascii_values_offset: List[str] = [chr(i + 45) for i in base10_pairs]
     jwt: str = ""
