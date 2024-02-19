@@ -5,6 +5,7 @@ import re
 import base64
 import zlib
 import json
+import os
 from pdf2image import convert_from_path
 from typing import List
 
@@ -130,14 +131,16 @@ def main() -> None:
     args = parse_args()
 
     if args.pdf:
-        print(f"Processing PDF: {args.pdf}")
-        image_data: numpy.ndarray = pdf_to_image(args.pdf)
+        pdf_path = os.path.abspath(args.pdf)
+        print(f"Processing PDF: {pdf_path}")
+        image_data: numpy.ndarray = pdf_to_image(pdf_path)
         shc: str = read_qr_code(cv2.imencode(".jpg", image_data)[1])
     elif args.image:
-        print(f"Processing image: {args.image}")
-        shc: str = read_qr_code_from_file(args.image)
+        image_path = os.path.abspath(args.image)
+        print(f"Processing image: {image_path}")
+        shc: str = read_qr_code_from_file(image_path)
     elif args.shc:
-        print(f"Processing SHC string: {args.shc}")
+        print("Processing SHC string")
         shc: str = args.shc
     else:
         parser.print_help()
