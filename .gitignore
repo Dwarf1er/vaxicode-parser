@@ -1,4 +1,3 @@
-
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,python
 
@@ -157,9 +156,5 @@ cython_debug/
 # Ignore all local history of files
 .history
 .ionide
-
-# Input and Output contents should stay local
-input_files/*
-output_files/*
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python
