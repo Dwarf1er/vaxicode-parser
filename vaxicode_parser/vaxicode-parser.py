@@ -85,8 +85,7 @@ def shc_to_jwt(shc_string: str) -> str:
         str: JWT string containing decoded health information.
     """
     integer_pairs: List[str] = [
-        (shc_string[i:i+2]) for i in range(5, len(shc_string), 2)
-    ]
+        (shc_string[i:i+2]) for i in range(5, len(shc_string), 2)]
     base10_pairs: List[int] = [int(i, base=10) for i in integer_pairs]
     ascii_values_offset: List[str] = [chr(i + 45) for i in base10_pairs]
     jwt: str = ""
