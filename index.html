@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHC Decoder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="./vendor/pako.min.js"></script>
+    <style>
+        textarea {
+            width: 50%;
+            height: 300px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+	<div class="container">
+		<h1 class="display-3">VaxiCode Parser</h1>
+		<p>Extract the information from your vaccination QR code</p>
+	</div>
+	<hr>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6">
+                <label for="shcInput" class="form-label">Enter SHC String:</label>
+                <input type="text" class="form-control" id="shcInput" name="shcInput">
+                <button class="btn btn-primary mt-3" onclick="decodeShc()">Decode</button>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <label for="decodedOutput" class="form-label">Decoded Output:</label>
+                <textarea class="form-control" id="decodedOutput" rows="25" readonly></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <p><a href="https://github.com/Dwarf1er/vaxicode-parser/">View the source code on Github!</a></p>
+        </div>
+    </div>
+
+    <script src="./vaxicode-parser.js"></script>
+</body>
+</html>
