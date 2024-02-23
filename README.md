@@ -6,6 +6,12 @@ The VaxiCode Parser is a command-line tool for decoding Smart Health Card (SHC) 
 
 The Smart Health Card (SHC) is a standard format for securely storing and sharing COVID-19 vaccination and testing information. This tool helps decode the encoded health information contained within SHC QR codes, allowing users to view the decoded data in a human-readable format.
 
+## Webpage Version
+
+Alternatively, a webpage version of the VaxiCode Parser is available, providing a user-friendly interface for decoding SHC information. The webpage runs entirely on the client-side, ensuring that no data is stored or sent anywhere. Users can upload PDF files, images, or enter SHC strings directly for decoding. The decoded information is displayed on the webpage for easy access.
+
+You can access the webpage version of the VaxiCode Parser [here](https://antoinepoulin.com/vaxicode-parser)
+
 ## Prerequisites
 
 Before installing and using the VaxiCode Parser, ensure you have the following prerequisites:
