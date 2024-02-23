@@ -12,61 +12,70 @@ function urlSafeBase64Decode(base64UrlSafeString) {
     return bytes;
 }
 
-function pdfToImage(pdfInput, callback) {
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(pdfInput);
-
-    reader.onload = function(event) {
-        const arrayBuffer = event.target.result;
-        
-        pdfjsLib.getDocument(arrayBuffer).promise.then(function(pdf) {
-            pdf.getPage(1).then(function(page) {
-                const viewport = page.getViewport({ scale: 2.0 });
-                const canvas = document.createElement("canvas");
-                const context = canvas.getContext("2d");
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-
-                const renderTask = page.render(renderContext);
-                renderTask.promise.then(function() {
-                    canvas.toBlob(function(blob) {
-                        const file = new File([blob], "image.png", { type: "image/png" });
-                        callback(file);
-                    });
-                });
-            });
-        });
-    };
+function readFile(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => resolve(event.target.result);
+        reader.onerror = (error) => reject(error);
+        reader.readAsArrayBuffer(file);
+    });
 }
 
-function readQRCode(imageInput, callback) {
-    const reader = new FileReader();
-    reader.readAsDataURL(imageInput);
-
-    reader.onload = function(event) {
-        const image = new Image();
-        image.onload = function() {
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
-            canvas.width = image.width;
-            canvas.height = image.height;
-            context.drawImage(image, 0, 0);
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height);
-            if (code) {
-                callback(code.data);
+async function pdfToImage(pdfInput) {
+    const arrayBuffer = await readFile(pdfInput);
+    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 2.0 });
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const renderContext = { canvasContext: context, viewport: viewport };
+    await page.render(renderContext).promise;
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+            if (blob) {
+                resolve(blob);
             } else {
-                document.getElementById("decodedOutput").style.color = "red";
-                document.getElementById("decodedOutput").value = "No QR code was found in this image, or reading information from canvas is disabled in your browser";
+                reject(new Error("Failed to convert canvas to blob."));
             }
+        });
+    });
+}
+
+function getImageData(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const image = new Image();
+            image.onload = () => {
+                const canvas = document.createElement("canvas");
+                const context = canvas.getContext("2d");
+                canvas.width = image.width;
+                canvas.height = image.height;
+                context.drawImage(image, 0, 0);
+                resolve(context.getImageData(0, 0, canvas.width, canvas.height));
+            };
+            image.onerror = (error) => reject(error);
+            image.src = event.target.result;
         };
-        image.src = event.target.result;
-    };
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+    });
+}
+
+async function readQRCode(imageInput) {
+    const imageData = await getImageData(imageInput);
+    const code = jsQR(imageData.data, imageData.width, imageData.height);
+    const errorElement = document.getElementById("errorOutput");
+
+    if (code) {
+        return code.data;
+    } else {
+        errorElement.style.color = "red";
+        errorElement.textContent = "No QR code was found in this image, or reading information from canvas is disabled in your browser";
+        return null;
+    }
 }
 
 function shcToJwt(shcString) {
@@ -98,39 +107,41 @@ function decodeJwt(jwt) {
     return decodedPayload;
 }
 
-function decodeShc() {
-    const shcString = document.getElementById("shcInput").value;
+async function decodeShc() {
+    const shcInput = document.getElementById("shcInput").value.trim();
     const imageInput = document.getElementById("imageInput").files[0];
     const pdfInput = document.getElementById("pdfInput").files[0];
 
-    let decodedOutputTextArea = document.getElementById("decodedOutput");
+    const errorElement = document.getElementById("errorOutput");
+    errorElement.style.color = "red";
+    errorElement.textContent = "";
 
-    if (pdfInput) {
-        pdfToImage(pdfInput, function(image) {
-            readQRCode(image, function(shcString) {
-                const jwt = shcToJwt(shcString);
-                const decodedData = decodeJwt(jwt);
-                const decodedOutput = JSON.stringify(JSON.parse(decodedData), null, 4);
-                decodedOutputTextArea.value = decodedOutput;
-                document.getElementById("pdfInput").value = null; 
-            });
-        });
-    } else if (imageInput) {
-        readQRCode(imageInput, function(shcString) {
+    try {
+        let shcString;
+
+        if (pdfInput) {
+            const imageBlob = await pdfToImage(pdfInput);
+            shcString = await readQRCode(imageBlob);
+            document.getElementById("pdfInput").value = null;
+        } else if (imageInput) {
+            shcString = await readQRCode(imageInput);
+            document.getElementById("imageInput").value = null;
+        } else if (shcInput) {
+            shcString = shcInput;
+            document.getElementById("shcInput").value = null;
+        } else {
+            throw new Error("Please provide either a SHC string, QR code image, or PDF!");
+        }
+
+        if (shcString) {
             const jwt = shcToJwt(shcString);
             const decodedData = decodeJwt(jwt);
             const decodedOutput = JSON.stringify(JSON.parse(decodedData), null, 4);
-            decodedOutputTextArea.value = decodedOutput;
-            document.getElementById("imageInput").value = null; 
-        });
-    } else if (shcString.trim() !== "") {
-        const jwt = shcToJwt(shcString);
-        const decodedData = decodeJwt(jwt);
-        const decodedOutput = JSON.stringify(JSON.parse(decodedData), null, 4);
-        decodedOutputTextArea.value = decodedOutput;
-        document.getElementById("shcInput").value = null;
-    } else {
-        decodedOutput.style.color = "red";
-        decodedOutput.value = "Please provide either a SHC string, QR code image, or PDF!";
+            document.getElementById("decodedOutput").value = decodedOutput;
+        } else {
+            throw new Error("SHC string is empty.");
+        }
+    } catch (error) {
+        errorElement.textContent = error.message;
     }
 }

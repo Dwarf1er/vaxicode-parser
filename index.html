@@ -18,6 +18,11 @@
 	</div>
 	<hr>
     <div class="container mt-5">
+        <div class="alert alert-info" role="alert">
+             <p class="mb-0">
+                 Please use this form to decode your vaccination QR code. You can enter the SHC string directly into the input field, upload an image of the QR code, or upload a PDF file containing the QR code. Once you've provided the input, click the "Decode" button to see the decoded output below.
+            </p>
+        </div>
         <form id="inputForm">
             <div class="mb-3">
                 <label for="shcInput" class="form-label">Enter SHC String:</label>
@@ -35,10 +40,11 @@
                 <button type="button" class="btn btn-primary" onclick="decodeShc()">Decode</button>
             </div>
         </form>
+        <div id="errorOutput" style="color: red;"></div>
         <div class="row mt-5">
             <div class="">
                 <label for="decodedOutput" class="form-label">Decoded Output:</label>
-                <textarea class="form-control" id="decodedOutput" rows="12" readonly style="width: 100%;"></textarea>
+                <textarea class="form-control" id="decodedOutput" rows="15" readonly style="width: 100%;"></textarea>
             </div>
         </div>
         <div class="row">
