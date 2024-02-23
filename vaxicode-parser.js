@@ -12,6 +12,38 @@ function urlSafeBase64Decode(base64UrlSafeString) {
     return bytes;
 }
 
+function pdfToImage(pdfInput, callback) {
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(pdfInput);
+
+    reader.onload = function(event) {
+        const arrayBuffer = event.target.result;
+        
+        pdfjsLib.getDocument(arrayBuffer).promise.then(function(pdf) {
+            pdf.getPage(1).then(function(page) {
+                const viewport = page.getViewport({ scale: 2.0 });
+                const canvas = document.createElement("canvas");
+                const context = canvas.getContext("2d");
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+
+                const renderTask = page.render(renderContext);
+                renderTask.promise.then(function() {
+                    canvas.toBlob(function(blob) {
+                        const file = new File([blob], "image.png", { type: "image/png" });
+                        callback(file);
+                    });
+                });
+            });
+        });
+    };
+}
+
 function readQRCode(imageInput, callback) {
     const reader = new FileReader();
     reader.readAsDataURL(imageInput);
@@ -20,11 +52,11 @@ function readQRCode(imageInput, callback) {
         const image = new Image();
         image.onload = function() {
             const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
+            const context = canvas.getContext("2d");
             canvas.width = image.width;
             canvas.height = image.height;
-            ctx.drawImage(image, 0, 0);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            context.drawImage(image, 0, 0);
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
             const code = jsQR(imageData.data, imageData.width, imageData.height);
             if (code) {
                 callback(code.data);
@@ -74,8 +106,15 @@ function decodeShc() {
     let decodedOutputTextArea = document.getElementById("decodedOutput");
 
     if (pdfInput) {
-        // PDF LOGIC
-        console.log("PDF INPUT");
+        pdfToImage(pdfInput, function(image) {
+            readQRCode(image, function(shcString) {
+                const jwt = shcToJwt(shcString);
+                const decodedData = decodeJwt(jwt);
+                const decodedOutput = JSON.stringify(JSON.parse(decodedData), null, 4);
+                decodedOutputTextArea.value = decodedOutput;
+                document.getElementById("pdfInput").value = null; 
+            });
+        });
     } else if (imageInput) {
         readQRCode(imageInput, function(shcString) {
             const jwt = shcToJwt(shcString);
