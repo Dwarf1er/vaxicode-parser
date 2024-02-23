@@ -12,6 +12,8 @@ Alternatively, a webpage version of the VaxiCode Parser is available, providing 
 
 You can access the webpage version of the VaxiCode Parser [here](https://antoinepoulin.com/vaxicode-parser)
 
+**NOTE: To use the PDF/image decoding features you need to have canvas reading enabled in your browser for QR codes to be read with JavaScript (privacy.resistFingerprinting must be turned off for Firefox users)**
+
 ## Prerequisites
 
 Before installing and using the VaxiCode Parser, ensure you have the following prerequisites:
