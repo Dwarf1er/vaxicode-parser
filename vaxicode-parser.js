@@ -139,7 +139,7 @@ async function decodeShc() {
             const decodedOutput = JSON.stringify(JSON.parse(decodedData), null, 4);
             document.getElementById("decodedOutput").value = decodedOutput;
         } else {
-            throw new Error("SHC string is empty.");
+            throw new Error("SHC string is empty, or reading information from canvas is disabled in your browser");
         }
     } catch (error) {
         errorElement.textContent = error.message;
